@@ -1,0 +1,2251 @@
+{
+  "commands": [
+    {
+      "args": "null",
+      "name": "list_contexts",
+      "readOnly": true,
+      "returns": "ClusterContextDto[]"
+    },
+    {
+      "args": "null",
+      "name": "rescan_kubeconfig",
+      "readOnly": true,
+      "returns": "ClusterContextDto[]"
+    },
+    {
+      "args": "ContextArgs",
+      "name": "connect_context",
+      "readOnly": true,
+      "returns": "ClusterContextDto"
+    },
+    {
+      "args": "ContextArgs",
+      "name": "disconnect_context",
+      "readOnly": true,
+      "returns": "ClusterContextDto"
+    },
+    {
+      "args": "ContextArgs",
+      "name": "discover_resources",
+      "readOnly": true,
+      "returns": "DiscoveredResourceDto[]"
+    },
+    {
+      "args": "ListResourcesArgs",
+      "name": "list_resources",
+      "readOnly": true,
+      "returns": "ResourceSummaryDto[]"
+    },
+    {
+      "args": "GetResourceArgs",
+      "name": "get_resource",
+      "readOnly": true,
+      "returns": "ResourceManifestDto"
+    },
+    {
+      "args": "GetPodLogsArgs",
+      "name": "get_pod_logs",
+      "readOnly": true,
+      "returns": "PodLogsDto"
+    },
+    {
+      "args": "StartLogStreamArgs",
+      "name": "start_log_stream",
+      "readOnly": true,
+      "returns": "LogStreamSessionDto"
+    },
+    {
+      "args": "StopLogStreamArgs",
+      "name": "stop_log_stream",
+      "readOnly": true,
+      "returns": "null"
+    },
+    {
+      "args": "StartShellArgs",
+      "name": "start_shell",
+      "readOnly": true,
+      "returns": "ShellSessionDto"
+    },
+    {
+      "args": "ShellInputArgs",
+      "name": "send_shell_input",
+      "readOnly": true,
+      "returns": "null"
+    },
+    {
+      "args": "ShellResizeArgs",
+      "name": "resize_shell",
+      "readOnly": true,
+      "returns": "null"
+    },
+    {
+      "args": "CloseShellArgs",
+      "name": "close_shell",
+      "readOnly": true,
+      "returns": "null"
+    },
+    {
+      "args": "StartPortForwardArgs",
+      "name": "start_port_forward",
+      "readOnly": true,
+      "returns": "PortForwardDto"
+    },
+    {
+      "args": "StopPortForwardArgs",
+      "name": "stop_port_forward",
+      "readOnly": true,
+      "returns": "null"
+    },
+    {
+      "args": "ContextArgs",
+      "name": "list_port_forwards",
+      "readOnly": true,
+      "returns": "PortForwardDto[]"
+    },
+    {
+      "args": "ContextArgs",
+      "name": "get_cluster_overview",
+      "readOnly": true,
+      "returns": "ClusterOverviewDto"
+    },
+    {
+      "args": "ContextArgs",
+      "name": "get_cluster_security_audit",
+      "readOnly": true,
+      "returns": "ClusterSecurityAuditDto"
+    },
+    {
+      "args": "GetResourceArgs",
+      "name": "get_resource_events",
+      "readOnly": true,
+      "returns": "ClusterEventDto[]"
+    },
+    {
+      "args": "GetResourceArgs",
+      "name": "get_resource_metrics",
+      "readOnly": true,
+      "returns": "ResourceMetricsDto"
+    },
+    {
+      "args": "GetNamespaceTopologyArgs",
+      "name": "get_namespace_topology",
+      "readOnly": true,
+      "returns": "NamespaceTopologyDto"
+    },
+    {
+      "args": "StopWatchArgs",
+      "name": "stop_watch",
+      "readOnly": true,
+      "returns": "null"
+    }
+  ],
+  "events": [
+    {
+      "name": "kubix://resource-delta",
+      "payload": "ResourceDeltaDto"
+    },
+    {
+      "name": "kubix://context-state",
+      "payload": "ClusterContextDto"
+    },
+    {
+      "name": "kubix://watch-evicted",
+      "payload": "WatchEvictedDto"
+    },
+    {
+      "name": "kubix://shell-output",
+      "payload": "ShellOutputDto"
+    },
+    {
+      "name": "kubix://pod-log-line",
+      "payload": "PodLogLineDto"
+    },
+    {
+      "name": "kubix://close-active-tab",
+      "payload": "null"
+    }
+  ],
+  "schemas": {
+    "AuthKind": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "description": "Minimal, credential-free view of a kubeconfig auth method.",
+      "enum": [
+        "exec",
+        "clientCert",
+        "token",
+        "other"
+      ],
+      "title": "AuthKind",
+      "type": "string"
+    },
+    "CloseShellArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "sessionId"
+      ],
+      "title": "CloseShellArgs",
+      "type": "object"
+    },
+    "ClusterContextDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "AuthKind": {
+          "description": "Minimal, credential-free view of a kubeconfig auth method.",
+          "enum": [
+            "exec",
+            "clientCert",
+            "token",
+            "other"
+          ],
+          "type": "string"
+        },
+        "ConnectionState": {
+          "enum": [
+            "disconnected",
+            "connecting",
+            "ready",
+            "authRequired",
+            "authFailed",
+            "unreachable",
+            "forbidden",
+            "degraded"
+          ],
+          "type": "string"
+        },
+        "ErrorCode": {
+          "enum": [
+            "kubeconfigNotFound",
+            "kubeconfigParseFailed",
+            "unknownContext",
+            "authRequired",
+            "authFailed",
+            "clusterUnreachable",
+            "forbidden",
+            "discoveryFailed",
+            "resourceNotFound",
+            "watchEvicted",
+            "internal"
+          ],
+          "type": "string"
+        },
+        "KubixErrorDto": {
+          "properties": {
+            "code": {
+              "$ref": "#/definitions/ErrorCode"
+            },
+            "contextId": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "retryable": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable"
+          ],
+          "type": "object"
+        }
+      },
+      "properties": {
+        "authHint": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "authKind": {
+          "$ref": "#/definitions/AuthKind"
+        },
+        "clusterName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "isCurrent": {
+          "type": "boolean"
+        },
+        "issues": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "lastError": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/KubixErrorDto"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespaceDefault": {
+          "type": "string"
+        },
+        "server": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/definitions/ConnectionState"
+        }
+      },
+      "required": [
+        "authKind",
+        "clusterName",
+        "id",
+        "isCurrent",
+        "issues",
+        "name",
+        "namespaceDefault",
+        "server",
+        "state"
+      ],
+      "title": "ClusterContextDto",
+      "type": "object"
+    },
+    "ClusterEventDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "count": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "eventType": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "involvedObject": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "uid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "count",
+        "createdAt",
+        "eventType",
+        "from",
+        "involvedObject",
+        "message",
+        "namespace",
+        "reason",
+        "uid"
+      ],
+      "title": "ClusterEventDto",
+      "type": "object"
+    },
+    "ClusterNodeOverviewDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "cpuCapacity": {
+          "type": "string"
+        },
+        "cpuCapacityMillicores": {
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "cpuUsageMillicores": {
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "kubeletVersion": {
+          "type": "string"
+        },
+        "memoryCapacity": {
+          "type": "string"
+        },
+        "memoryCapacityMib": {
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "memoryUsageMib": {
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "ready": {
+          "type": "boolean"
+        },
+        "roles": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "cpuCapacity",
+        "createdAt",
+        "kubeletVersion",
+        "memoryCapacity",
+        "name",
+        "ready",
+        "roles"
+      ],
+      "title": "ClusterNodeOverviewDto",
+      "type": "object"
+    },
+    "ClusterOverviewDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "ClusterEventDto": {
+          "properties": {
+            "count": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "eventType": {
+              "type": "string"
+            },
+            "from": {
+              "type": "string"
+            },
+            "involvedObject": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "uid": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "count",
+            "createdAt",
+            "eventType",
+            "from",
+            "involvedObject",
+            "message",
+            "namespace",
+            "reason",
+            "uid"
+          ],
+          "type": "object"
+        },
+        "ClusterNodeOverviewDto": {
+          "properties": {
+            "cpuCapacity": {
+              "type": "string"
+            },
+            "cpuCapacityMillicores": {
+              "format": "double",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "cpuUsageMillicores": {
+              "format": "double",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "kubeletVersion": {
+              "type": "string"
+            },
+            "memoryCapacity": {
+              "type": "string"
+            },
+            "memoryCapacityMib": {
+              "format": "double",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "memoryUsageMib": {
+              "format": "double",
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "name": {
+              "type": "string"
+            },
+            "ready": {
+              "type": "boolean"
+            },
+            "roles": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cpuCapacity",
+            "createdAt",
+            "kubeletVersion",
+            "memoryCapacity",
+            "name",
+            "ready",
+            "roles"
+          ],
+          "type": "object"
+        }
+      },
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "healthyDeployments": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "metricsServerAvailable": {
+          "default": false,
+          "type": "boolean"
+        },
+        "namespaceCount": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/definitions/ClusterNodeOverviewDto"
+          },
+          "type": "array"
+        },
+        "readyNodes": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "recentEvents": {
+          "items": {
+            "$ref": "#/definitions/ClusterEventDto"
+          },
+          "type": "array"
+        },
+        "runningPods": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "totalDeployments": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "totalNodes": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "totalPods": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "contextId",
+        "healthyDeployments",
+        "namespaceCount",
+        "nodes",
+        "readyNodes",
+        "recentEvents",
+        "runningPods",
+        "totalDeployments",
+        "totalNodes",
+        "totalPods"
+      ],
+      "title": "ClusterOverviewDto",
+      "type": "object"
+    },
+    "ClusterSecurityAuditDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "SecurityFindingDto": {
+          "properties": {
+            "category": {
+              "type": "string"
+            },
+            "checkName": {
+              "type": "string"
+            },
+            "containerName": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "podName": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "category",
+            "checkName",
+            "id",
+            "message",
+            "namespace",
+            "podName",
+            "severity"
+          ],
+          "type": "object"
+        }
+      },
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "criticalCount": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/definitions/SecurityFindingDto"
+          },
+          "type": "array"
+        },
+        "highCount": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "lowCount": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "mediumCount": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "scannedContainers": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "scannedPods": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "contextId",
+        "criticalCount",
+        "findings",
+        "highCount",
+        "lowCount",
+        "mediumCount",
+        "scannedContainers",
+        "scannedPods"
+      ],
+      "title": "ClusterSecurityAuditDto",
+      "type": "object"
+    },
+    "ConnectionState": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "enum": [
+        "disconnected",
+        "connecting",
+        "ready",
+        "authRequired",
+        "authFailed",
+        "unreachable",
+        "forbidden",
+        "degraded"
+      ],
+      "title": "ConnectionState",
+      "type": "string"
+    },
+    "ContainerMetricDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "cpuMillicores": {
+          "format": "double",
+          "type": "number"
+        },
+        "memoryMib": {
+          "format": "double",
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "cpuMillicores",
+        "memoryMib",
+        "name"
+      ],
+      "title": "ContainerMetricDto",
+      "type": "object"
+    },
+    "ContextArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "contextId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "contextId"
+      ],
+      "title": "ContextArgs",
+      "type": "object"
+    },
+    "ContextId": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
+      "type": "string"
+    },
+    "DiscoveredResourceDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "curated": {
+          "type": "boolean"
+        },
+        "group": {
+          "type": "string"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "namespaced": {
+          "type": "boolean"
+        },
+        "plural": {
+          "type": "string"
+        },
+        "shortNames": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "verbs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "curated",
+        "group",
+        "gvr",
+        "kind",
+        "namespaced",
+        "plural",
+        "shortNames",
+        "verbs",
+        "version"
+      ],
+      "title": "DiscoveredResourceDto",
+      "type": "object"
+    },
+    "ErrorCode": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "enum": [
+        "kubeconfigNotFound",
+        "kubeconfigParseFailed",
+        "unknownContext",
+        "authRequired",
+        "authFailed",
+        "clusterUnreachable",
+        "forbidden",
+        "discoveryFailed",
+        "resourceNotFound",
+        "watchEvicted",
+        "internal"
+      ],
+      "title": "ErrorCode",
+      "type": "string"
+    },
+    "GetNamespaceTopologyArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "namespace": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "contextId"
+      ],
+      "title": "GetNamespaceTopologyArgs",
+      "type": "object"
+    },
+    "GetPodLogsArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "container": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contextId": {
+          "type": "string"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "previous": {
+          "default": null,
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "tailLines": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "contextId",
+        "gvr",
+        "name"
+      ],
+      "title": "GetPodLogsArgs",
+      "type": "object"
+    },
+    "GetResourceArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "contextId",
+        "gvr",
+        "name"
+      ],
+      "title": "GetResourceArgs",
+      "type": "object"
+    },
+    "GroupVersionResource": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
+      "type": "string"
+    },
+    "KubixErrorDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "ErrorCode": {
+          "enum": [
+            "kubeconfigNotFound",
+            "kubeconfigParseFailed",
+            "unknownContext",
+            "authRequired",
+            "authFailed",
+            "clusterUnreachable",
+            "forbidden",
+            "discoveryFailed",
+            "resourceNotFound",
+            "watchEvicted",
+            "internal"
+          ],
+          "type": "string"
+        }
+      },
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/ErrorCode"
+        },
+        "contextId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable"
+      ],
+      "title": "KubixErrorDto",
+      "type": "object"
+    },
+    "ListResourcesArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "contextId",
+        "gvr",
+        "namespace"
+      ],
+      "title": "ListResourcesArgs",
+      "type": "object"
+    },
+    "LogStreamSessionDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "containers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "initContainers": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "pods": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "streamId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "containers",
+        "pods",
+        "streamId"
+      ],
+      "title": "LogStreamSessionDto",
+      "type": "object"
+    },
+    "Namespace": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
+      "type": "string"
+    },
+    "NamespaceTopologyDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "TopologyDetailDto": {
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "value"
+          ],
+          "type": "object"
+        },
+        "TopologyEdgeDto": {
+          "properties": {
+            "crossNamespace": {
+              "default": false,
+              "type": "boolean"
+            },
+            "from": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "from",
+            "id",
+            "label",
+            "to"
+          ],
+          "type": "object"
+        },
+        "TopologyNodeDto": {
+          "properties": {
+            "details": {
+              "default": [],
+              "items": {
+                "$ref": "#/definitions/TopologyDetailDto"
+              },
+              "type": "array"
+            },
+            "external": {
+              "default": false,
+              "type": "boolean"
+            },
+            "gvr": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "layer": {
+              "description": "Layout column category: \"entry\" | \"routing\" | \"service\" | \"workload\" | \"pod\" | \"aux\"",
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "parentWorkloadId": {
+              "default": null,
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "podCount": {
+              "default": null,
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "readyPodCount": {
+              "default": null,
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "status": {
+              "type": "string"
+            },
+            "subtitle": {
+              "default": null,
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "gvr",
+            "id",
+            "kind",
+            "layer",
+            "name",
+            "namespace",
+            "status"
+          ],
+          "type": "object"
+        }
+      },
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "edges": {
+          "items": {
+            "$ref": "#/definitions/TopologyEdgeDto"
+          },
+          "type": "array"
+        },
+        "gatewayApiDetected": {
+          "type": "boolean"
+        },
+        "gatewayApiKinds": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/definitions/TopologyNodeDto"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "contextId",
+        "edges",
+        "gatewayApiDetected",
+        "namespace",
+        "nodes"
+      ],
+      "title": "NamespaceTopologyDto",
+      "type": "object"
+    },
+    "PodLogChunkDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "containerName": {
+          "type": "string"
+        },
+        "logs": {
+          "type": "string"
+        },
+        "podName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "containerName",
+        "logs",
+        "podName"
+      ],
+      "title": "PodLogChunkDto",
+      "type": "object"
+    },
+    "PodLogLineDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "closed": {
+          "type": "boolean"
+        },
+        "containerName": {
+          "type": "string"
+        },
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "line": {
+          "type": "string"
+        },
+        "podName": {
+          "type": "string"
+        },
+        "streamId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "closed",
+        "containerName",
+        "line",
+        "podName",
+        "streamId"
+      ],
+      "title": "PodLogLineDto",
+      "type": "object"
+    },
+    "PodLogsDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "PodLogChunkDto": {
+          "properties": {
+            "containerName": {
+              "type": "string"
+            },
+            "logs": {
+              "type": "string"
+            },
+            "podName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "containerName",
+            "logs",
+            "podName"
+          ],
+          "type": "object"
+        }
+      },
+      "properties": {
+        "chunks": {
+          "items": {
+            "$ref": "#/definitions/PodLogChunkDto"
+          },
+          "type": "array"
+        },
+        "containers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "contextId": {
+          "type": "string"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "initContainers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pods": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "chunks",
+        "containers",
+        "contextId",
+        "gvr",
+        "name",
+        "pods"
+      ],
+      "title": "PodLogsDto",
+      "type": "object"
+    },
+    "PortForwardDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "forwardId": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "localPort": {
+          "format": "uint16",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "localUrl": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "remotePort": {
+          "format": "uint16",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "targetPod": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "contextId",
+        "forwardId",
+        "kind",
+        "localPort",
+        "localUrl",
+        "name",
+        "namespace",
+        "remotePort",
+        "targetPod"
+      ],
+      "title": "PortForwardDto",
+      "type": "object"
+    },
+    "ResourceDeletionDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "uid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "uid"
+      ],
+      "title": "ResourceDeletionDto",
+      "type": "object"
+    },
+    "ResourceDeltaDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "ResourceDeletionDto": {
+          "properties": {
+            "uid": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "uid"
+          ],
+          "type": "object"
+        },
+        "ResourceSummaryDto": {
+          "properties": {
+            "controlledBy": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "labels": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "message": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "name": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "node": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ready": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "restarts": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "status": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "taints": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "uid": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "createdAt",
+            "kind",
+            "labels",
+            "name",
+            "uid"
+          ],
+          "type": "object"
+        }
+      },
+      "properties": {
+        "batchId": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "contextId": {
+          "type": "string"
+        },
+        "deletions": {
+          "items": {
+            "$ref": "#/definitions/ResourceDeletionDto"
+          },
+          "type": "array"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "isSnapshot": {
+          "description": "True when this batch is the authoritative result of a watcher snapshot; the UI replaces its rows instead of merging them.",
+          "type": "boolean"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "upserts": {
+          "items": {
+            "$ref": "#/definitions/ResourceSummaryDto"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "batchId",
+        "contextId",
+        "deletions",
+        "gvr",
+        "isSnapshot",
+        "namespace",
+        "truncated",
+        "upserts"
+      ],
+      "title": "ResourceDeltaDto",
+      "type": "object"
+    },
+    "ResourceManifestDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "maskedPaths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "yaml": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "contextId",
+        "gvr",
+        "maskedPaths",
+        "name",
+        "yaml"
+      ],
+      "title": "ResourceManifestDto",
+      "type": "object"
+    },
+    "ResourceMetricsDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "ContainerMetricDto": {
+          "properties": {
+            "cpuMillicores": {
+              "format": "double",
+              "type": "number"
+            },
+            "memoryMib": {
+              "format": "double",
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cpuMillicores",
+            "memoryMib",
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      "properties": {
+        "containers": {
+          "items": {
+            "$ref": "#/definitions/ContainerMetricDto"
+          },
+          "type": "array"
+        },
+        "contextId": {
+          "type": "string"
+        },
+        "metricsServerAvailable": {
+          "type": "boolean"
+        },
+        "podCount": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "statusMessage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "totalCpuMillicores": {
+          "format": "double",
+          "type": "number"
+        },
+        "totalMemoryMib": {
+          "format": "double",
+          "type": "number"
+        },
+        "windowSeconds": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "containers",
+        "contextId",
+        "metricsServerAvailable",
+        "podCount",
+        "timestamp",
+        "totalCpuMillicores",
+        "totalMemoryMib",
+        "windowSeconds"
+      ],
+      "title": "ResourceMetricsDto",
+      "type": "object"
+    },
+    "ResourceSummaryDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "controlledBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "message": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "node": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ready": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "restarts": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "taints": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "uid": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "createdAt",
+        "kind",
+        "labels",
+        "name",
+        "uid"
+      ],
+      "title": "ResourceSummaryDto",
+      "type": "object"
+    },
+    "SecurityFindingDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "checkName": {
+          "type": "string"
+        },
+        "containerName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "podName": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "category",
+        "checkName",
+        "id",
+        "message",
+        "namespace",
+        "podName",
+        "severity"
+      ],
+      "title": "SecurityFindingDto",
+      "type": "object"
+    },
+    "ShellInputArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "data": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "sessionId"
+      ],
+      "title": "ShellInputArgs",
+      "type": "object"
+    },
+    "ShellOutputDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "closed": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "stream": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "closed",
+        "data",
+        "sessionId",
+        "stream"
+      ],
+      "title": "ShellOutputDto",
+      "type": "object"
+    },
+    "ShellResizeArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "cols": {
+          "format": "uint16",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "rows": {
+          "format": "uint16",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "sessionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "cols",
+        "rows",
+        "sessionId"
+      ],
+      "title": "ShellResizeArgs",
+      "type": "object"
+    },
+    "ShellSessionDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "container": {
+          "type": "string"
+        },
+        "contextId": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "podName": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "container",
+        "contextId",
+        "namespace",
+        "podName",
+        "sessionId"
+      ],
+      "title": "ShellSessionDto",
+      "type": "object"
+    },
+    "StartLogStreamArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "container": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contextId": {
+          "type": "string"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "previous": {
+          "default": null,
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "tailLines": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "contextId",
+        "gvr",
+        "name"
+      ],
+      "title": "StartLogStreamArgs",
+      "type": "object"
+    },
+    "StartPortForwardArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "localPort": {
+          "default": null,
+          "format": "uint16",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "remotePort": {
+          "format": "uint16",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "contextId",
+        "kind",
+        "name",
+        "namespace",
+        "remotePort"
+      ],
+      "title": "StartPortForwardArgs",
+      "type": "object"
+    },
+    "StartShellArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "cols": {
+          "default": null,
+          "format": "uint16",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "command": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "container": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contextId": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "podName": {
+          "type": "string"
+        },
+        "rows": {
+          "default": null,
+          "format": "uint16",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "contextId",
+        "namespace",
+        "podName"
+      ],
+      "title": "StartShellArgs",
+      "type": "object"
+    },
+    "StopLogStreamArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "streamId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "streamId"
+      ],
+      "title": "StopLogStreamArgs",
+      "type": "object"
+    },
+    "StopPortForwardArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "forwardId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "forwardId"
+      ],
+      "title": "StopPortForwardArgs",
+      "type": "object"
+    },
+    "StopWatchArgs": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "contextId",
+        "gvr",
+        "namespace"
+      ],
+      "title": "StopWatchArgs",
+      "type": "object"
+    },
+    "TopologyDetailDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "title": "TopologyDetailDto",
+      "type": "object"
+    },
+    "TopologyEdgeDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "crossNamespace": {
+          "default": false,
+          "type": "boolean"
+        },
+        "from": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "from",
+        "id",
+        "label",
+        "to"
+      ],
+      "title": "TopologyEdgeDto",
+      "type": "object"
+    },
+    "TopologyNodeDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "TopologyDetailDto": {
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label",
+            "value"
+          ],
+          "type": "object"
+        }
+      },
+      "properties": {
+        "details": {
+          "default": [],
+          "items": {
+            "$ref": "#/definitions/TopologyDetailDto"
+          },
+          "type": "array"
+        },
+        "external": {
+          "default": false,
+          "type": "boolean"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "layer": {
+          "description": "Layout column category: \"entry\" | \"routing\" | \"service\" | \"workload\" | \"pod\" | \"aux\"",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "parentWorkloadId": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "podCount": {
+          "default": null,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "readyPodCount": {
+          "default": null,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "subtitle": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "gvr",
+        "id",
+        "kind",
+        "layer",
+        "name",
+        "namespace",
+        "status"
+      ],
+      "title": "TopologyNodeDto",
+      "type": "object"
+    },
+    "WatchEvictedDto": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "contextId": {
+          "type": "string"
+        },
+        "gvr": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "contextId",
+        "gvr",
+        "namespace"
+      ],
+      "title": "WatchEvictedDto",
+      "type": "object"
+    }
+  },
+  "version": 1
+}

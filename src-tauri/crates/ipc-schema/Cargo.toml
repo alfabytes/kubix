@@ -1,0 +1,9 @@
+[package]
+name = "ipc-schema"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+kubix = { path = "../..", package = "kubix", default-features = false }
+serde_json = "1"

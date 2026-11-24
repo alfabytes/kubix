@@ -1,0 +1,4 @@
+allowBuilds:
+  esbuild: true
+  "@tauri-apps/cli": true
+  "@tauri-apps/cli-darwin-arm64": true

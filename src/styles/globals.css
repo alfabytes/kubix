@@ -1,0 +1,254 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme (high-contrast operational palette) */
+    --background: 214 25% 96%;
+    --foreground: 218 32% 12%;
+    --rail: 215 24% 92%;
+    --panel: 214 24% 98%;
+    --elevated: 0 0% 100%;
+    --hover: 213 24% 91%;
+    --card: 0 0% 100%;
+    --card-foreground: 218 32% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 32% 12%;
+    --primary: 199 89% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 22% 91%;
+    --secondary-foreground: 218 32% 14%;
+    --muted: 214 22% 91%;
+    --muted-foreground: 215 16% 42%;
+    --accent: 199 75% 91%;
+    --accent-foreground: 201 90% 24%;
+    --destructive: 0 80% 54%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 70% 38%;
+    --warning: 38 92% 45%;
+    --info: 199 89% 46%;
+    --border: 214 20% 85%;
+    --border-strong: 214 20% 76%;
+    --input: 214 20% 82%;
+    --ring: 199 89% 42%;
+    --radius: 0.3125rem;
+  }
+
+  .dark {
+    /* Dark enterprise Kubernetes IDE surface hierarchy (obsidian-carbon) */
+    --background: 225 18% 4.5%;
+    --foreground: 213 22% 91%;
+    --rail: 225 16% 5.5%;
+    --panel: 225 15% 6.5%;
+    --elevated: 224 14% 9.5%;
+    --hover: 224 14% 13.5%;
+    --card: 225 15% 6.5%;
+    --card-foreground: 213 22% 91%;
+    --popover: 224 14% 10%;
+    --popover-foreground: 213 22% 91%;
+    --primary: 202 95% 58%;
+    --primary-foreground: 225 25% 6%;
+    --secondary: 224 14% 11.5%;
+    --secondary-foreground: 213 22% 90%;
+    --muted: 224 14% 11.5%;
+    --muted-foreground: 218 11% 56%;
+    --accent: 208 42% 16%;
+    --accent-foreground: 199 95% 74%;
+    --destructive: 0 74% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 69% 46%;
+    --warning: 38 92% 52%;
+    --info: 199 92% 60%;
+    --border: 224 14% 14%;
+    --border-strong: 224 14% 21%;
+    --input: 224 14% 17%;
+    --ring: 202 95% 58%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.4;
+    overflow: hidden;
+  }
+
+  :focus-visible {
+    outline: 1.5px solid hsl(var(--ring));
+    outline-offset: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-sm bg-border-strong/70 hover:bg-muted-foreground/50;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer utilities {
+  .ide-section-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground;
+  }
+
+  .ide-meta-label {
+    @apply text-[10px] font-medium uppercase tracking-[0.06em] text-muted-foreground;
+  }
+
+  .ide-table-header {
+    @apply text-[10.5px] font-semibold uppercase tracking-[0.06em] text-muted-foreground;
+  }
+
+  .ide-grid-canvas {
+    background-color: hsl(var(--background));
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.35) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.35) 1px, transparent 1px),
+      linear-gradient(to right, hsl(var(--border) / 0.65) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.65) 1px, transparent 1px);
+    background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+  }
+}
+
+@keyframes kubix-orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes kubix-orbit-spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes kubix-bot-blink {
+  0%, 44%, 52%, 100% {
+    transform: scaleY(1);
+  }
+  48% {
+    transform: scaleY(0.12);
+  }
+}
+
+@keyframes kubix-bot-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+@keyframes kubix-pulse-ring {
+  0% {
+    transform: scale(0.75);
+    opacity: 0.85;
+  }
+  70% {
+    transform: scale(1.18);
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(0.75);
+    opacity: 0.85;
+  }
+}
+
+@keyframes kubix-scan-eye {
+  0%, 100% {
+    transform: translateX(-2px);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes kubix-plush-breathe {
+  0%, 100% {
+    transform: translateY(0px) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-1px) scale(1.025, 0.985);
+  }
+}
+
+@keyframes kubix-eyes-blink {
+  0%, 44%, 49%, 91%, 96%, 100% {
+    transform: scaleY(1);
+  }
+  46.5%, 93.5% {
+    transform: scaleY(0.12);
+  }
+}
+
+.kubix-orbit-spin {
+  transform-origin: center;
+  animation: kubix-orbit-spin 6s linear infinite;
+}
+
+.kubix-orbit-spin-reverse {
+  transform-origin: center;
+  animation: kubix-orbit-spin-reverse 9s linear infinite;
+}
+
+.kubix-bot-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kubix-bot-blink 3.6s ease-in-out infinite;
+}
+
+.kubix-bot-float {
+  animation: kubix-bot-float 2.8s ease-in-out infinite;
+}
+
+.kubix-plush-breathe {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kubix-plush-breathe 3.4s ease-in-out infinite;
+}
+
+.kubix-eyes-blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kubix-eyes-blink 4.6s ease-in-out infinite;
+}
+
+.kubix-pulse-ring {
+  transform-origin: center;
+  animation: kubix-pulse-ring 2.6s ease-in-out infinite;
+}
+
+.kubix-scan-eye {
+  animation: kubix-scan-eye 2.4s ease-in-out infinite;
+}
